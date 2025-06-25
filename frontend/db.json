@@ -1,0 +1,20 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "How to Build a Next.js Blog",
+      "author": {
+        "email": "jane.doe@example.com"
+      },
+      "content": "<p>Welcome to this <strong>Next.js</strong> blog post! Here's some <em>rich content</em> with HTML tags.</p><ul><li>Use SSR for SEO</li><li>Fetch data with Axios</li><li>Style with Tailwind CSS</li></ul><p>Happy coding 🎉</p>"
+    },
+    {
+      "id": 2,
+      "title": "Malicious Content Test",
+      "author": {
+        "email": "evil@example.com"
+      },
+      "content": "<p>This post contains a script: <script>alert('XSS');</script></p>"
+    }
+  ]
+}
