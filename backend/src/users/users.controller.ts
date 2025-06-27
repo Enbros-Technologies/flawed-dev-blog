@@ -18,6 +18,7 @@ export class UsersController {
         status: HttpStatus.NOT_FOUND,
         description: 'User not found.',
     })
+
     findOne(@Param('id') id: string) {
         return this.usersService.findOneById(+id);
     }
