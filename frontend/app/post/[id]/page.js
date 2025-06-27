@@ -8,57 +8,47 @@ import { Badge } from "@/components/ui/badge"
 import { Navbar } from "@/components/navbar"
 import { ArrowLeft, Edit, Trash2, Calendar, User } from "lucide-react"
 import Link from "next/link"
+import { apiRequest } from "@/lib/apiRequest"
 
 export default function PostPage({ params }) {
   const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const router = useRouter()
-   const { id: postId } = use(params)
+  const { id: postId } = use(params)
 
   useEffect(() => {
     const fetchPost = async () => {
-    try {
-      const response = await fetch(`/api/posts/${postId}`)
-      const data = await response.json()
-
-      if (response.ok) {
-        setPost(data.post)
-      } else {
-        setError(data.message || "Post not found")
+      try {
+        const data = await apiRequest(`/posts/${postId}`)
+        setPost(data)
+      } catch (err) {
+        console.error("Error fetching post:", err)
+        setError("Failed to load post")
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error("Error fetching post:", error)
-      setError("Failed to load post")
-    } finally {
-      setLoading(false)
     }
-  }
-  
+
     fetchPost()
   }, [postId])
 
-  
 
-  const handleDelete = async () => {
+  async function handleDelete(postId) {
     if (confirm("Are you sure you want to delete this post?")) {
+      const token = localStorage.getItem("token")
       try {
-        const token = localStorage.getItem("token")
-        const response = await fetch(`/api/posts/${postId}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const result = await deletePost(postId, token)
 
-        if (response.ok) {
+        if (result.success) {
+          toast(result.message)
           router.push("/")
         } else {
-          alert("Failed to delete post")
+          toast(result.message)
         }
-      } catch (error) {
-        console.error("Error deleting post:", error)
-        alert("Error deleting post")
+      } catch (err) {
+        console.error("Error deleting post:", err)
+        toast("Error deleting post")
       }
     }
   }
@@ -117,7 +107,7 @@ export default function PostPage({ params }) {
           <Card>
             <CardHeader className="pb-6">
               <div className="flex justify-between items-start mb-4">
-                <Badge variant={post.status === "status" ? "default" : "secondary"}>{post.status}</Badge>
+                <Badge variant={post.published === true ? "default" : "secondary"}>{post.published ? "published" : "draft"}</Badge>
                 {/* INTENTIONAL FLAW: Edit/Delete buttons visible to everyone */}
                 <div className="flex items-center gap-2">
                   <Link href={`/edit/${post.id}`}>
@@ -143,7 +133,7 @@ export default function PostPage({ params }) {
               <div className="flex items-center gap-6 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  <span>By {post.author}</span>
+                  <span>By {post.author.name}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
