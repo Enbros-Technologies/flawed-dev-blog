@@ -34,7 +34,7 @@ export default function RegisterPage() {
     }
 
    try {
-      const data = await apiRequest("/auth/register", {
+      await apiRequest("/auth/register", {
         method: "POST",
         body: JSON.stringify({
           name: formData.name,

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { User, LogOut, PlusCircle, Home} from "lucide-react"
+import { LogOut, PlusCircle, Home} from "lucide-react"
 
 export function Navbar() {
   const [user, setUser] = useState(null)

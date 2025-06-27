@@ -40,7 +40,6 @@ export default function HomePage() {
 
         if (result.success) {
           toast(result.message)
-          // Refresh the posts list after successful deletion
           await fetchPosts()
         } else {
           toast(result.message)
@@ -91,7 +90,6 @@ export default function HomePage() {
                       Read More
                     </Button>
                   </Link>
-                  {/* INTENTIONAL FLAW: No auth check for edit/delete buttons */}
                   <div className="space-x-2">
                     <Link href={`/edit/${post.id}`}>
                       <Button variant="ghost" size="sm">

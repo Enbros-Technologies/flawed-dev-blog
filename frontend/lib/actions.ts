@@ -1,7 +1,6 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { cookies } from "next/headers"
 import { apiRequest } from "@/lib/apiRequest"
 
 export async function deletePost(postId: string, token?: string) {
@@ -17,7 +16,6 @@ export async function deletePost(postId: string, token?: string) {
       },
     })
 
-    // Revalidate the page to refresh the posts list
     revalidatePath("/")
 
     return { success: true, message: "Post deleted successfully" }

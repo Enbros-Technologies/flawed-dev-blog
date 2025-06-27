@@ -24,10 +24,8 @@ export default function CreatePostPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // INTENTIONAL FLAW: Very weak auth check that can be bypassed
     const token = localStorage.getItem("token")
     if (!token) {
-      // This can be easily bypassed by setting a fake token in localStorage
       router.push("/login")
     }
   }, [router])

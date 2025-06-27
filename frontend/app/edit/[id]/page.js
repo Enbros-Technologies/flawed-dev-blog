@@ -25,7 +25,6 @@ export default function EditPostPage({ params }) {
   const { id: postId } = use(params)
 
   useEffect(() => {
-    // INTENTIONAL FLAW: No proper auth check - anyone can edit any post
     const fetchPost = async () => {
       try {
         const data = await apiRequest(`/posts/${postId}`)
@@ -52,7 +51,7 @@ export default function EditPostPage({ params }) {
 
     try {
       const token = localStorage.getItem("token")
-      const data = await apiRequest(`/posts/${postId}`, {
+      await apiRequest(`/posts/${postId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
