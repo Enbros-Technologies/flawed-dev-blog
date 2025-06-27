@@ -17,10 +17,7 @@ export default function PostPage({ params }) {
    const { id: postId } = use(params)
 
   useEffect(() => {
-    fetchPost()
-  }, [postId])
-
-  const fetchPost = async () => {
+    const fetchPost = async () => {
     try {
       const response = await fetch(`/api/posts/${postId}`)
       const data = await response.json()
@@ -37,6 +34,11 @@ export default function PostPage({ params }) {
       setLoading(false)
     }
   }
+  
+    fetchPost()
+  }, [postId])
+
+  
 
   const handleDelete = async () => {
     if (confirm("Are you sure you want to delete this post?")) {
@@ -115,7 +117,7 @@ export default function PostPage({ params }) {
           <Card>
             <CardHeader className="pb-6">
               <div className="flex justify-between items-start mb-4">
-                <Badge variant={post.status === "published" ? "default" : "secondary"}>{post.status}</Badge>
+                <Badge variant={post.status === "status" ? "default" : "secondary"}>{post.status}</Badge>
                 {/* INTENTIONAL FLAW: Edit/Delete buttons visible to everyone */}
                 <div className="flex items-center gap-2">
                   <Link href={`/edit/${post.id}`}>
@@ -145,7 +147,7 @@ export default function PostPage({ params }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  <span>Published {new Date(post.createdAt).toLocaleDateString()}</span>
+                  <span>status {new Date(post.createdAt).toLocaleDateString()}</span>
                 </div>
                 {post.updatedAt !== post.createdAt && (
                   <div className="flex items-center gap-2">

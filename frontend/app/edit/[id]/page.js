@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Navbar } from "@/components/navbar"
+import { apiRequest } from "@/lib/apiRequest"
 
 export default function EditPostPage({ params }) {
   const [formData, setFormData] = useState({
@@ -21,33 +22,28 @@ export default function EditPostPage({ params }) {
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
   const router = useRouter()
-   const { id: postId } = use(params)
+  const { id: postId } = use(params)
 
   useEffect(() => {
     // INTENTIONAL FLAW: No proper auth check - anyone can edit any post
+    const fetchPost = async () => {
+      try {
+        const data = await apiRequest(`/posts/${postId}`)
+        setFormData({
+          title: data.title,
+          content: data.content,
+          status: data.published  === true ? "published" : "draft",
+        })
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+
     fetchPost()
   }, [postId])
 
-  const fetchPost = async () => {
-    try {
-      const response = await fetch(`/api/posts/${postId}`)
-      const data = await response.json()
-
-      if (response.ok) {
-        setFormData({
-          title: data.post.title,
-          content: data.post.content,
-          status: data.post.status,
-        })
-      } else {
-        setError("Post not found")
-      }
-    } catch (error) {
-      setError("Error loading post")
-    } finally {
-      setInitialLoading(false)
-    }
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -56,24 +52,23 @@ export default function EditPostPage({ params }) {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch(`/api/posts/${postId}`, {
-        method: "PUT",
+      const data = await apiRequest(`/posts/${postId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          title: formData.title,
+          content: formData.content,
+          published: formData.status === "published" ? true : false,
+        }),
       })
 
-      const data = await response.json()
-
-      if (response.ok) {
-        router.push("/dashboard")
-      } else {
-        setError(data.message || "Failed to update post")
-      }
-    } catch (error) {
-      setError("Network error. Please try again.")
+        router.push("/")
+      toast("Post updated successfully")
+    } catch (err) {
+      setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -140,7 +135,7 @@ export default function EditPostPage({ params }) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status">status</Label>
                 <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />

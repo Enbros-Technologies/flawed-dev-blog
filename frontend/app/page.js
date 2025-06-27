@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import Link from "next/link"
+import { apiRequest } from "@/lib/apiRequest"
+import { toast } from "sonner"
+import { deletePost } from "@/lib/actions"
 
 export default function HomePage() {
   const [posts, setPosts] = useState([])
@@ -13,17 +16,39 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchPosts()
-  }, [])
+  }, [posts])
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch("/api/posts")
-      const data = await response.json()
-      setPosts(data.posts || [])
-    } catch (error) {
-      console.error("Error fetching posts:", error)
+      const data = await apiRequest("/posts", {
+        method: "GET",
+      })
+
+      setPosts(data || [])
+    } catch (err) {
+      console.error("Error fetching posts:", err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleDelete(postId) {
+    if (confirm("Are you sure you want to delete this post?")) {
+      const token = localStorage.getItem("token")
+      try {
+        const result = await deletePost(postId, token)
+
+        if (result.success) {
+          toast(result.message)
+          // Refresh the posts list after successful deletion
+          await fetchPosts()
+        } else {
+          toast(result.message)
+        }
+      } catch (err) {
+        console.error("Error deleting post:", err)
+        toast("Error deleting post")
+      }
     }
   }
 
@@ -52,11 +77,11 @@ export default function HomePage() {
             <Card key={post.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  <Badge variant={post.status === "published" ? "default" : "secondary"}>{post.status}</Badge>
+                  <Badge variant={post.published === true ? "default" : "secondary"}>{post.published === true ? "published" : "draft"}</Badge>
                   <span className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</span>
                 </div>
                 <CardTitle className="line-clamp-2">{post.title}</CardTitle>
-                <CardDescription>By {post.author}</CardDescription>
+                <CardDescription>By {post.author.name}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 line-clamp-3 mb-4">{post.content}</p>
@@ -100,27 +125,4 @@ export default function HomePage() {
       </div>
     </div>
   )
-
-  async function handleDelete(postId) {
-    if (confirm("Are you sure you want to delete this post?")) {
-      try {
-        const token = localStorage.getItem("token")
-        const response = await fetch(`/api/posts/${postId}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (response.ok) {
-          fetchPosts()
-        } else {
-          alert("Failed to delete post")
-        }
-      } catch (error) {
-        console.error("Error deleting post:", error)
-        alert("Error deleting post")
-      }
-    }
-  }
 }

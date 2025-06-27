@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
+import { apiRequest } from "@/lib/apiRequest"
+import { toast } from "sonner"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -31,12 +33,9 @@ export default function RegisterPage() {
       return
     }
 
-    try {
-      const response = await fetch("/api/auth/register", {
+   try {
+      const data = await apiRequest("/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
@@ -44,17 +43,10 @@ export default function RegisterPage() {
         }),
       })
 
-      const data = await response.json()
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user", JSON.stringify(data.user))
-        router.push("/dashboard")
-      } else {
-        setError(data.message || "Registration failed")
-      }
-    } catch (error) {
-      setError("Network error. Please try again.")
+      toast("Registration successful")
+      router.push("/login")
+    } catch (err) {
+      setError(err.message)
     } finally {
       setLoading(false)
     }

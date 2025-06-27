@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Navbar } from "@/components/navbar"
+import { apiRequest } from "@/lib/apiRequest"
+import { toast } from "sonner"
 
 export default function CreatePostPage() {
   const [formData, setFormData] = useState({
@@ -28,7 +30,7 @@ export default function CreatePostPage() {
       // This can be easily bypassed by setting a fake token in localStorage
       router.push("/login")
     }
-  }, [])
+  }, [router])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -37,24 +39,23 @@ export default function CreatePostPage() {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("/api/posts", {
+      await apiRequest("/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          title: formData.title,
+          content: formData.content,
+          published: formData.status === "published" ? true : false,
+        }),
       })
 
-      const data = await response.json()
-
-      if (response.ok) {
-        router.push("/dashboard")
-      } else {
-        setError(data.message || "Failed to create post")
-      }
-    } catch (error) {
-      setError("Network error. Please try again.")
+      toast("Post created successfully")
+      router.push("/")
+    } catch (err) {
+      setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -110,7 +111,7 @@ export default function CreatePostPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status">status</Label>
                 <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />

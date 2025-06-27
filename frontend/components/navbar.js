@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { User, LogOut, PlusCircle, Home, LayoutDashboard } from "lucide-react"
+import { User, LogOut, PlusCircle, Home} from "lucide-react"
 
 export function Navbar() {
   const [user, setUser] = useState(null)
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("user")
+    const userData = localStorage.getItem("token")
     if (userData) {
-      setUser(JSON.parse(userData))
+      setUser({name: "User"}) // Simulating user data, should be fetched from API
     }
   }, [])
 
@@ -46,16 +46,10 @@ export function Navbar() {
               </Link>
               {user && (
                 <>
-                  <Link href="/dashboard">
-                    <Button variant="ghost" className="flex items-center gap-2">
-                      <LayoutDashboard className="h-4 w-4" />
-                      Dashboard
-                    </Button>
-                  </Link>
                   <Link href="/create">
                     <Button variant="ghost" className="flex items-center gap-2">
                       <PlusCircle className="h-4 w-4" />
-                      Create
+                      Create New Post
                     </Button>
                   </Link>
                 </>
@@ -75,12 +69,6 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Dashboard
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
                     <LogOut className="h-4 w-4" />
                     Logout

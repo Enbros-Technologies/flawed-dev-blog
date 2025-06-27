@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
+import { apiRequest } from "@/lib/apiRequest"
+import { toast } from "sonner"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -23,26 +25,18 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
 
-    try {
-      const response = await fetch("/api/auth/login", {
+   try {
+      const data = await apiRequest("/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(formData),
       })
 
-      const data = await response.json()
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user", JSON.stringify(data.user))
-        router.push("/dashboard")
-      } else {
-        setError(data.message || "Login failed")
-      }
-    } catch (error) {
-      setError("Network error. Please try again.")
+      toast("Login successful")
+      localStorage.setItem("token", data.access_token)
+      // localStorage.setItem("user", JSON.stringify(data.user))
+      router.push("/")
+    } catch (err) {
+      setError(err.message || "Login failed")
     } finally {
       setLoading(false)
     }
@@ -103,7 +97,7 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
+              {`Don't have an account? `}
               <Link href="/register" className="text-blue-600 hover:underline">
                 Sign up
               </Link>
