@@ -6,26 +6,20 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { LogOut, PlusCircle, Home} from "lucide-react"
+import { LogOut, PlusCircle } from "lucide-react"
 
 export function Navbar() {
   const [user, setUser] = useState(null)
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("token")
+    const userData = localStorage.getItem("user")
     if (userData) {
-      setUser({name: "User"}) // Simulating user data, should be fetched from API
+      setUser(userData ? JSON.parse(userData) : null)
     }
   }, [])
 
-  // INTENTIONAL FLAW: Logout doesn't clear token, only redirects
   const handleLogout = () => {
-    // This should clear localStorage but doesn't
-    // localStorage.removeItem('token')
-    // localStorage.removeItem('user')
-
-    // Only redirects without clearing auth data
     router.push("/login")
   }
 
@@ -35,15 +29,9 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <Link href="/" className="text-xl font-bold text-gray-900">
-              Urban Vibes
+              DEV BLOG
             </Link>
-            <div className="hidden md:flex space-x-4">
-              <Link href="/">
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  Home
-                </Button>
-              </Link>
+            <div className="flex space-x-4">
               {user && (
                 <>
                   <Link href="/create">
@@ -68,10 +56,18 @@ export function Navbar() {
                     <span className="hidden md:inline">{user.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="px-2">
                   <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
                     <LogOut className="h-4 w-4" />
                     Logout
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/create">
+                      <div variant="ghost" className="flex items-center gap-2">
+                        <PlusCircle className="h-4 w-4" />
+                        Create New Post
+                      </div>
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

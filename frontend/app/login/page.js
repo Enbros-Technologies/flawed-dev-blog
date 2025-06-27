@@ -33,7 +33,7 @@ export default function LoginPage() {
 
       toast("Login successful")
       localStorage.setItem("token", data.access_token)
-      // localStorage.setItem("user", JSON.stringify(data.user))
+      localStorage.setItem("user", JSON.stringify(data.user))
       router.push("/")
     } catch (err) {
       setError(err.message || "Login failed")

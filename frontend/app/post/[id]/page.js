@@ -3,12 +3,15 @@
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Navbar } from "@/components/navbar"
 import { ArrowLeft, Edit, Trash2, Calendar, User } from "lucide-react"
 import Link from "next/link"
 import { apiRequest } from "@/lib/apiRequest"
+import { deletePost } from "@/lib/actions"
+import { toast } from "sonner"
 
 export default function PostPage({ params }) {
   const [post, setPost] = useState(null)
@@ -35,21 +38,19 @@ export default function PostPage({ params }) {
 
 
   async function handleDelete(postId) {
-    if (confirm("Are you sure you want to delete this post?")) {
-      const token = localStorage.getItem("token")
-      try {
-        const result = await deletePost(postId, token)
+    const token = localStorage.getItem("token")
+    try {
+      const result = await deletePost(postId, token)
 
-        if (result.success) {
-          toast(result.message)
-          router.push("/")
-        } else {
-          toast(result.message)
-        }
-      } catch (err) {
-        console.error("Error deleting post:", err)
-        toast("Error deleting post")
+      if (result.success) {
+        toast(result.message)
+        await fetchPosts()
+      } else {
+        toast(result.message)
       }
+    } catch (err) {
+      console.error("Error deleting post:", err)
+      toast("Error deleting post")
     }
   }
 
@@ -116,15 +117,28 @@ export default function PostPage({ params }) {
                       Edit
                     </Button>
                   </Link>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="flex items-center gap-2 text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </Button>
+                 <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700">
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete and remove your post from our servers.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(post.id)}>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                 </div>
               </div>
 
